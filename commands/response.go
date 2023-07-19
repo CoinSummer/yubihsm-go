@@ -80,6 +80,10 @@ type (
 		Signature []byte
 	}
 
+	HMACDataResponse struct {
+		Digest []byte
+	}
+
 	GetPubKeyResponse struct {
 		Algorithm Algorithm
 		// KeyData can contain different formats depending on the algorithm according to the YubiHSM2 documentation.
@@ -165,6 +169,8 @@ func ParseResponse(data []byte) (Response, error) {
 		return parseSignDataEddsaResponse(payload)
 	case CommandTypeSignDataEcdsa:
 		return parseSignDataEcdsaResponse(payload)
+	case CommandTypeHMACData:
+		return parseHMACDataResponse(payload)
 	case CommandTypeSignDataPkcs1:
 		return parseSignDataPkcs1Response(payload)
 	case CommandTypePutAsymmetric:
@@ -239,12 +245,12 @@ func parseDeviceInfoResponse(payload []byte) (Response, error) {
 	}
 
 	return &DeviceInfoResponse{
-		MajorVersion: payload[0],
-		MinorVersion: payload[1],
-		BuildVersion: payload[2],
-		SerialNumber: serialNumber,
-		LogTotal: payload[7],
-		LogUsed: payload[8],
+		MajorVersion:        payload[0],
+		MinorVersion:        payload[1],
+		BuildVersion:        payload[2],
+		SerialNumber:        serialNumber,
+		LogTotal:            payload[7],
+		LogUsed:             payload[8],
 		SupportedAlgorithms: supportedAlgorithms,
 	}, nil
 }
@@ -295,6 +301,12 @@ func parseSignDataPkcs1Response(payload []byte) (Response, error) {
 func parseSignDataEcdsaResponse(payload []byte) (Response, error) {
 	return &SignDataEcdsaResponse{
 		Signature: payload,
+	}, nil
+}
+
+func parseHMACDataResponse(payload []byte) (Response, error) {
+	return &HMACDataResponse{
+		Digest: payload,
 	}, nil
 }
 

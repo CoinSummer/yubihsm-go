@@ -9,7 +9,6 @@ import (
 	"github.com/certusone/yubihsm-go/authkey"
 )
 
-
 func CreateDeviceInfoCommand() (*CommandMessage, error) {
 	command := &CommandMessage{
 		CommandType: CommandTypeDeviceInfo,
@@ -92,6 +91,20 @@ func CreateSignDataEddsaCommand(keyID uint16, data []byte) (*CommandMessage, err
 func CreateSignDataEcdsaCommand(keyID uint16, data []byte) (*CommandMessage, error) {
 	command := &CommandMessage{
 		CommandType: CommandTypeSignDataEcdsa,
+	}
+
+	payload := bytes.NewBuffer([]byte{})
+	binary.Write(payload, binary.BigEndian, keyID)
+	payload.Write(data)
+
+	command.Data = payload.Bytes()
+
+	return command, nil
+}
+
+func CreateHMACDataCommand(keyID uint16, data []byte) (*CommandMessage, error) {
+	command := &CommandMessage{
+		CommandType: CommandTypeHMACData,
 	}
 
 	payload := bytes.NewBuffer([]byte{})
